@@ -1,20 +1,21 @@
 # EasyAPI
 
-**EasyAPI** is a minimalist Python web framework built from scratch, designed to make web development even easier. This project is a reinvention of the web wheel, focusing on simplicity and ease of use, providing developers with a lightweight and flexible framework to build web applications.
+**EasyAPI** is a minimalist Python web framework designed for simplicity and ease of use. It allows you to define routes, handle HTTP requests, and manage middleware with a clean, visually appealing structure. Completely open-source, and contributions are welcome.
 
 ## Features
 
-- **Simple Routing System**: Map URLs to Python functions with minimal effort.
-- **WSGI Compliant**: Serve your web applications using any WSGI-compatible server.
-- **Request and Response Handling**: Easily handle HTTP requests and generate responses.
-- **Templating Support**: Render HTML templates with simple context substitution.
-- **Lightweight and Easy to Use**: Designed to keep things simple, making it easy to get started and build your own web applications.
+- **Visually Appealing Route Registration**: Define routes in a clear and structured manner without using decorators.
+- **Middleware Support**: Easily integrate middleware for pre- and post-processing of requests and responses.
+- **Blueprints**: Modularize your application into separate components, making it easy to manage larger projects.
+- **Customizeable Error Handling**: Customize error pages and manage HTTP status codes effectively.
+- **Logging**: Track application activity with built-in logging support.
+- **Static Files**: Serve static assets like CSS, JavaScript, and images directly from your application.
 
 ## Getting Started
 
 ### Prerequisites
 
-Make sure you have Python installed. You can check your Python version with:
+Make sure you have Python installed on your system. You can check your Python version with:
 
 ```bash
 python --version
@@ -33,88 +34,156 @@ cd easyapi
 
 To create a basic web application using EasyAPI, follow these steps:
 
-**Define Your Application**: Create a `run.py` file.
+#### **Define Your Route Handlers**: Create your route handler functions
 
 ```python
-from EasyAPI.app import EasyAPI
+def home(request):
+    return Response("Welcome to EasyAPI! This is the home page.")
 
-app = EasyAPI()
+def about(request):
+    return Response("This is the About page.")
 
-@app.route('/')
-def home():
-    return app.render_template('base.html', title="Hello, World!", content="Welcome to EasyAPI!")
+def greet(request):
+    name = request.body or 'Guest'
+    return Response(f"Hello, {name}!")
+```
 
+#### **Register Routes**: Define your routes in a dictionary, without using decorators
+
+```python
+routes = [
+    ('/', home, ['GET']),
+    ('/about', about, ['GET']),
+    ('/greet', greet, ['POST']),
+]
+app.add_routes(routes)
+```
+
+#### **Add Middleware and Error Handlers**: Optionally, add middleware and error handlers
+
+```python
+app.use_middleware(log_request)
+app.use_middleware(add_custom_header)
+
+app.register_error_handler(404, handle_404)
+app.register_error_handler(500, handle_500)
+```
+
+#### **Serve Static Files**: Set a directory for serving static files
+
+```python
+app.set_static_folder('static')
+```
+
+#### **Run Your Application**: Start the server and your application will be live
+
+```python
 if __name__ == '__main__':
     app.run()
 ```
 
-**Run Your Application**:
+### Example
 
-```bash
-python run.py
-```
+See an example usage in the `example.py` file might look like:
 
-**Visit Your Application**: Open your browser and go to `http://127.0.0.1:5000/`.
+### Advanced Features
 
-### Directory Structure
+#### Middleware
 
-Here's a quick overview of the project structure:
-
-```bash
-easyapi/
-│
-├── EasyAPI/
-│   ├── __init__.py
-│   ├── app.py
-│   ├── routing.py
-│   ├── request.py
-│   ├── response.py
-│   └── templates/
-│       └── base.html
-│
-├── tests/
-│   └── test_app.py
-│
-└── run.py
-```
-
-- **EasyAPI/**: Contains the core framework components.
-- **templates/**: Holds your HTML templates.
-- **tests/**: Contains unit tests for your application.
-- **run.py**: The entry point for running your application.
-
-### Adding Routes
-
-You can easily add new routes to your application:
+Middleware functions allow you to add custom logic before and after request handling. Here’s an example:
 
 ```python
-@app.route('/about')
-def about():
-    return "This is the About page."
+def log_request(request):
+    print(f"Received {request.method} request for {request.path}")
+
+def add_custom_header(request, response):
+    response.headers.append(('X-Custom-Header', 'This is a custom header'))
+    return response
 ```
 
-### Customizing Responses
+#### Blueprints
 
-You can customize the HTTP response by directly returning `Response` objects:
+Blueprints help you organize your application by grouping related routes together. Here’s an example of using a blueprint:
 
 ```python
-from EasyAPI.response import Response
+from EasyAPI.blueprint import Blueprint
 
-@app.route('/custom')
-def custom():
-    return Response("Custom Response", status='200 OK', headers=[('Content-Type', 'text/plain')])
+api = Blueprint()
+
+@api.route('/greet', methods=['POST'])
+def greet(request):
+    name = request.body or 'Guest'
+    return Response(f"Hello, {name}!")
+
+app.register_blueprint(api, url_prefix='/api')
 ```
 
-## Contributing
+#### Error Handling
+
+You can define custom error handlers to provide more user-friendly error pages:
+
+```python
+def handle_404(request):
+    return Response("Custom 404 Not Found", status='404 NOT FOUND')
+
+def handle_500(request):
+    return Response("Custom 500 Internal Server Error", status='500 INTERNAL SERVER ERROR')
+```
+
+#### EasyAPI CLI Features Overview
+
+**Create a New Project**
+
+```bash
+easyapi new my_project
+```
+
+This command generates a new EasyAPI project with a basic directory structure, including folders for routes, middlewares, and static files.
+
+**Run the Server:**
+
+```bash
+easyapi run
+```
+
+This command starts the EasyAPI development server. It automatically imports the run.py file to start the application.
+
+**List All Routes:**
+
+```bash
+easyapi routes
+```
+
+This command lists all registered routes along with their corresponding handler functions and HTTP methods.
+
+**Generate a New Route:**
+
+```bash
+easyapi generate-route my_route
+```
+
+This command scaffolds a new route handler in the routes directory. For example, it will create a my_route.py file in the routes directory with a pre-defined handler function.
+
+**Add a Middleware:**
+
+```bash
+easyapi add-middleware my_middleware
+```
+
+This command scaffolds a new middleware function in the middlewares directory. It creates a file with a basic middleware template.
+
+**Set Static Folder:**
+
+```bash
+easyapi set-static static
+```
+
+This command sets the static files directory for the application.
+
+### Contributing
 
 Contributions are welcome! If you have ideas, features, or bug fixes, feel free to submit a pull request or open an issue.
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Commit your changes.
-4. Push to the branch.
-5. Submit a pull request.
-
-## License
+### License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
