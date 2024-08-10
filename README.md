@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
 ### Example
 
-See an example usage in the `example.py` file might look like:
+See a complete example usage in the [example.py](example.py) file might look like:
 
 ### Advanced Features
 
