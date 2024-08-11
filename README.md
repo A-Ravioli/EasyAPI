@@ -10,6 +10,10 @@
 - **Customizeable Error Handling**: Customize error pages and manage HTTP status codes effectively.
 - **Logging**: Track application activity with built-in logging support.
 - **Static Files**: Serve static assets like CSS, JavaScript, and images directly from your application.
+- **OAuth Integration:** Support for OAuth 2.0 authentication using providers like Google, GitHub, and Facebook via Authlib.
+- **Payment Processing:** Comprehensive Stripe integration for handling payments, subscriptions, webhooks, and customer management.
+- **Caching:** Enhanced support for Redis and Memcached with TTL and cache invalidation.
+- **Task Queue:** Background job processing using Celery with Redis as the broker.
 
 ## Getting Started
 
